@@ -1,6 +1,6 @@
-# notion-bookmark-favicons
+# notion-page-icons
 
-A script to add favicons to a Notion database items.
+A script to add favicons to a Notion database pages (rows).
 
 ## Setup
 
