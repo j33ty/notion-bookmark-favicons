@@ -3,15 +3,12 @@ from notion_client import Client
 from urllib.parse import urlparse
 
 
-# Database column names in Notion and environment variables for API requests
+# Database column names in Notion.
 db_key_name = "Name"
 db_key_url = "url"
-env_token = "INTEGRATION_TOKEN"
-env_database_id = "DATABASE_ID"
+
 
 # Function to get environment variable
-
-
 def get_env_variable(name):
     value = os.getenv(name)
     if value is None or value == "":
@@ -28,21 +25,21 @@ def get_favicon_url(website_url):
 
 
 # Function to update a row with the favicon
-def update_row_with_favicon(notion, page_id, favicon_url):
+def update_notion_page_with_icon(notion, page_id, icon_url):
     notion.pages.update(
         **{
             "page_id": page_id,
             "icon": {
                 "type": "external",
                 "external": {
-                    "url": favicon_url,
+                    "url": icon_url,
                 }
             },
         }
     )
 
 
-def row_has_favicon(notion, page_id):
+def notion_page_has_favicon(notion, page_id):
     row = notion.pages.retrieve(page_id=page_id)
     if "icon" in row and row["icon"] is not None:
         return True
@@ -51,10 +48,10 @@ def row_has_favicon(notion, page_id):
 
 
 # Integration token of your Notion integration
-integration_token = get_env_variable(env_token)
+integration_token = get_env_variable("INTEGRATION_TOKEN")
 
 # ID of your Notion database
-database_id = get_env_variable(env_database_id)
+database_id = get_env_variable("DATABASE_ID")
 
 # Initialize Notion client
 notion = Client(auth=integration_token)
@@ -73,12 +70,12 @@ while True:
         page_id = row["id"]
         page_title = row["properties"][db_key_name]['title'][0]["plain_text"]
 
-        if row_has_favicon(notion, page_id):
+        if notion_page_has_favicon(notion, page_id):
             print("Skipped %s" % (page_title))
             continue
 
         favicon_url = get_favicon_url(row["properties"][db_key_url]["url"])
-        update_row_with_favicon(notion, page_id, favicon_url)
+        update_notion_page_with_icon(notion, page_id, favicon_url)
         print("Updated %s" % (page_title))
 
     # has_more is False when we've reached the last page of results
